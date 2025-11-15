@@ -42,6 +42,11 @@ class InscripcionService:
         if not usuario:
             raise ValueError(f"Usuario con ID {create_dto.id_usuario} no encontrado")
         
+        #validar que solo los estudiantes pueden inscribirse
+        ROL_ESTUDIANTE = 1 #COnstante de id del rol estudiante
+        if usuario.id_rol != ROL_ESTUDIANTE:
+            raise ValueError(f"El usuario {usuario.obtener_nombre_completo()} no tiene el rol de Estudiante (ID {ROL_ESTUDIANTE}) y no puede inscribirse.")
+        
         # Validar que el ciclo existe
         ciclo = self.ciclo_repository.get_by_id(create_dto.id_ciclo)
         if not ciclo:
@@ -58,6 +63,37 @@ class InscripcionService:
             id_ciclo=create_dto.id_ciclo,
             fecha_inscripcion=create_dto.fecha_inscripcion,
             estado=EstadoInscripcionValueObject(valor=create_dto.estado)
+        )
+        
+        return self.inscripcion_repository.create(inscripcion)
+    
+    def create_last_ciclo(self, id_usuario: int) -> Inscripcion:
+        # Validar que el usuario existe
+        usuario = self.user_repository.get_by_id(id_usuario)
+        if not usuario:
+            raise ValueError(f"Usuario con ID {id_usuario} no encontrado")
+        
+        #validar que solo los estudiantes pueden inscribirse
+        ROL_ESTUDIANTE = 1 #COnstante de id del rol estudiante
+        if usuario.id_rol != ROL_ESTUDIANTE:
+            raise ValueError(f"El usuario {usuario.obtener_nombre_completo()} no tiene el rol de Estudiante (ID {ROL_ESTUDIANTE}) y no puede inscribirse.")
+        
+        # Obtener el último ciclo
+        ultimo_ciclo = self.ciclo_repository.get_last_cycle_id()
+        if not ultimo_ciclo:
+            raise ValueError("No se encontró ningún ciclo disponible")
+        
+        # Validar que no exista ya una inscripción activa para este usuario y ciclo
+        if self.inscripcion_repository.exists_inscripcion_activa(id_usuario, ultimo_ciclo):
+            raise ValueError(f"El usuario ya tiene una inscripción activa en el último ciclo")
+        
+        # Crear la entidad
+        inscripcion = Inscripcion(
+            id_inscripcion=None,
+            id_usuario=id_usuario,
+            id_ciclo=ultimo_ciclo,
+            fecha_inscripcion=date.today(),
+            estado=EstadoInscripcionValueObject(valor=EstadoInscripcionEnum.ACTIVA)
         )
         
         return self.inscripcion_repository.create(inscripcion)

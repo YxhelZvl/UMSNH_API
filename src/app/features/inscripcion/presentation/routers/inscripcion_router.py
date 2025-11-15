@@ -115,6 +115,38 @@ def create_inscripcion(inscripcion_request: InscripcionCreateRequest, service: i
             status=500
         )
 
+@router.post("/last_ciclo/{id_usuario}", response_model=InscripcionSingleResponse, status_code=201)
+def create_last_ciclo(id_usuario: int, service: inscripcion_service_dep):
+    try:
+        inscripcion_entity = service.create_last_ciclo(id_usuario)
+        
+        inscripcion_response = InscripcionResponse(
+            id_inscripcion=inscripcion_entity.id_inscripcion,
+            id_usuario=inscripcion_entity.id_usuario,
+            id_ciclo=inscripcion_entity.id_ciclo,
+            fecha_inscripcion=inscripcion_entity.fecha_inscripcion,
+            estado=inscripcion_entity.estado.valor.value
+        )
+        
+        return GenericResponse.create_success(
+            message="Inscripción creada exitosamente",
+            data=inscripcion_response,
+            status=201
+        )
+        
+    except ValueError as e:
+        return GenericResponse.create_error(
+            message="Error de validación",
+            errors=[str(e)],
+            status=400
+        )
+    except Exception as e:
+        return GenericResponse.create_error(
+            message="Error al crear inscripción",
+            errors=[str(e)],
+            status=500
+        )
+
 @router.put("/{id_inscripcion}", response_model=InscripcionSingleResponse)
 def update_inscripcion(id_inscripcion: int, inscripcion_request: InscripcionUpdateRequest, service: inscripcion_service_dep):
     try:
