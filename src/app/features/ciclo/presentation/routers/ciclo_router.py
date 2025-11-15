@@ -11,7 +11,9 @@ from src.app.features.ciclo.presentation.schemas.ciclo_schemas import (
     CicloResponse,
     CiclosListResponse,
     CicloSingleResponse,
-    CicloDeleteResponse
+    CicloDeleteResponse,
+    LastIdCycleResponse,
+    LastSingleIdCycleResponse
 )
 from src.app.shared.schemas.generic_response import GenericResponse
 
@@ -268,6 +270,32 @@ def get_ciclos_por_fecha(fecha: date, service: ciclo_service_dep):
     except Exception as e:
         return GenericResponse.create_error(
             message="Error al obtener ciclos por fecha",
+            errors=[str(e)],
+            status=500
+        )
+@router.get("/last-id/", response_model=LastSingleIdCycleResponse)
+def get_last_cycle_id(service: ciclo_service_dep):
+    try:
+        last_id = service.get_last_cycle_id()
+        print("Last ID obtenido:", last_id)
+        if last_id is None:
+            return GenericResponse.create_error(
+                message="No hay ciclos disponibles",
+                errors=["No se encontró ningún ciclo"],
+                status=404
+            )
+        last_id_response = LastIdCycleResponse(
+            last_id_cycle=last_id
+        )
+        return GenericResponse.create_success(
+            message="Último ID de ciclo obtenido exitosamente",
+            data=last_id_response,
+            status=200
+        )
+        
+    except Exception as e:
+        return GenericResponse.create_error(
+            message="Error al obtener el último ID de ciclo",
             errors=[str(e)],
             status=500
         )

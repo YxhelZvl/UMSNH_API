@@ -83,3 +83,6 @@ class CicloService:
     def exists_by_nombre(self, nombre_ciclo: str) -> bool:
         return self.ciclo_repository.exists_by_nombre(nombre_ciclo)
     
+
+    def get_last_cycle_id(self) -> Optional[int]:
+        return self.ciclo_repository.get_last_cycle_id()

@@ -104,3 +104,11 @@ class CicloRepositoryImpl(CicloRepository):
             return ciclo_db is not None
         except Exception as e:
             raise e
+        
+    def get_last_cycle_id(self) -> Optional[int]:
+        try:
+            statement = select(CicloDB.id_ciclo).order_by(CicloDB.fecha_inicio.desc()).limit(1)
+            result_id = self.session.exec(statement).first()
+            return result_id
+        except Exception as e:
+            raise e

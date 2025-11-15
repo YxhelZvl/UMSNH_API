@@ -41,3 +41,7 @@ class CicloRepository(ABC):
     @abstractmethod
     def exists_by_nombre(self, nombre_ciclo: str) -> bool:
         pass
+    
+    @abstractmethod
+    def get_last_cycle_id(self) -> Optional[int]:
+        pass

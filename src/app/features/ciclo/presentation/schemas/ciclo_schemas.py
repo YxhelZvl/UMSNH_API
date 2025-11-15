@@ -20,6 +20,9 @@ class CicloResponse(BaseModel):
     fecha_inicio: date
     fecha_final: date
     
+class LastIdCycleResponse(BaseModel):
+    last_id_cycle: Optional[int]
+    
 
     class Config:
         from_attributes = True
@@ -27,3 +30,4 @@ class CicloResponse(BaseModel):
 CiclosListResponse = GenericResponse[List[CicloResponse]]
 CicloSingleResponse = GenericResponse[CicloResponse]
 CicloDeleteResponse = GenericResponse[None]
+LastSingleIdCycleResponse = GenericResponse[LastIdCycleResponse]
