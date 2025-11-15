@@ -40,11 +40,6 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# Generic Responses
-UsersListResponse = GenericResponse[List[UserResponse]]
-UserSingleResponse = GenericResponse[UserResponse]
-UserDeleteResponse = GenericResponse[None]
-
 # Schema para autenticación
 class UserLoginRequest(BaseModel):
     email: EmailStr
@@ -55,6 +50,26 @@ class UserLoginResponse(BaseModel):
     nombre: str
     email: str
     id_rol: int
+    
+class UserDetailResponse(BaseModel):
+    id_usuario: Optional[int]
+    nombre: str
+    apellidoP: str
+    apellidoM: str
+    matricula: str
+    email: str
+    id_rol: int
+    rol_tipo: str
+    status: str
+
+    class Config:
+        from_attributes = True
 
 class UserLoginGenericResponse(GenericResponse[UserLoginResponse]):
     pass
+
+# Generic Responses
+UsersDetailsListResponse = GenericResponse[List[UserDetailResponse]]
+UsersListResponse = GenericResponse[List[UserResponse]]
+UserSingleResponse = GenericResponse[UserResponse]
+UserDeleteResponse = GenericResponse[None]

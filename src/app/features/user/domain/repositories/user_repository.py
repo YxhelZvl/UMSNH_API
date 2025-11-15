@@ -44,3 +44,7 @@ class UserRepository(ABC):
     @abstractmethod
     def exists_by_matricula(self, matricula: str) -> bool:
         pass
+    
+    @abstractmethod
+    def get_all_users_with_details(self) -> List[dict]:
+        pass

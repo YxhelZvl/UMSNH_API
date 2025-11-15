@@ -134,3 +134,8 @@ class UserService:
         if user and pwd_context.verify(contraseña, user.contraseña):
             return user
         return None
+    
+    
+    def get_all_users_with_details(self) -> List[dict]:
+        """Obtener todos los usuarios con detalles adicionales"""
+        return self.user_repository.get_all_users_with_details()

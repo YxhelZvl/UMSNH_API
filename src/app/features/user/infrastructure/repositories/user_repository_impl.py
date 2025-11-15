@@ -5,6 +5,8 @@ from src.app.features.user.domain.repositories.user_repository import UserReposi
 from src.app.features.user.domain.entities.user import User
 from src.app.features.user.infrastructure.models.user_model import UserDB
 from src.app.features.user.infrastructure.mappers.user_mapper import UserMapper
+from src.app.features.rol.infrastructure.models.rol_model import RolDB
+
 
 class UserRepositoryImpl(UserRepository):
     def __init__(self, session: Session):
@@ -112,4 +114,26 @@ class UserRepositoryImpl(UserRepository):
             user_db = self.session.exec(statement).first()
             return user_db is not None
         except Exception as e:
+            raise e
+         
+    def get_all_users_with_details(self):
+        try:
+            statement = (
+                select(UserDB, RolDB)
+                .join(RolDB, UserDB.id_rol == RolDB.id_rol)
+            )
+            
+            results = self.session.exec(statement).all()
+            
+            users_detailed = []
+            for user_db, rol_db in results:
+                users_detailed.append({
+                    'usuario': user_db,
+                    'rol': rol_db
+                })
+                
+            return users_detailed
+                
+        except Exception as e:
+            self.session.rollback()
             raise e

@@ -14,7 +14,9 @@ from src.app.features.user.presentation.schemas.user_schemas import (
     UserDeleteResponse,
     UserLoginRequest,
     UserLoginResponse,
-    UserLoginGenericResponse
+    UserLoginGenericResponse,
+    UserDetailResponse,
+    UsersDetailsListResponse
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -359,6 +361,39 @@ def login_user(login_request: UserLoginRequest, service: user_service_dep):
     except Exception as e:
         return GenericResponse.create_error(
             message="Error en el login",
+            errors=[str(e)],
+            status=500
+        )
+        
+@router.get("/detalles/", response_model=UsersDetailsListResponse)
+def get_user_details_with_details(service: user_service_dep):
+    """Obtener todos los usuarios con detalles de rol"""
+    try:
+        users = service.get_all_users_with_details()
+        
+        users_response = [
+            UserDetailResponse(
+                id_usuario=user['usuario'].id_usuario,
+                nombre=user['usuario'].nombre,
+                apellidoP=user['usuario'].apellidoP,
+                apellidoM=user['usuario'].apellidoM,
+                matricula=user['usuario'].matricula,
+                email=user['usuario'].email,
+                id_rol=user['usuario'].id_rol,
+                rol_tipo=user['rol'].tipo_rol,
+                status=user['usuario'].status
+            ) for user in users
+        ]
+        
+        return GenericResponse.create_success(
+            message="Usuarios con detalles obtenidos exitosamente",
+            data=users_response,
+            status=200
+        )
+        
+    except Exception as e:
+        return GenericResponse.create_error(
+            message="Error al obtener usuarios con detalles",
             errors=[str(e)],
             status=500
         )
