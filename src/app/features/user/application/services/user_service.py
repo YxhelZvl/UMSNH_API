@@ -6,10 +6,10 @@ from src.app.features.user.domain.value_objects.email import EmailValueObject
 from src.app.features.user.domain.value_objects.matricula import MatriculaValueObject
 from src.app.features.user.domain.repositories.user_repository import UserRepository
 from src.app.features.user.application.dtos import CreateUserDTO, UpdateUserDTO
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 
 # Configuración para encriptación de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_hasher = PasswordHash.recommended()
 
 class UserService:
     def __init__(self, user_repository: UserRepository):
@@ -45,7 +45,7 @@ class UserService:
             raise ValueError("La matrícula ya está registrada")
 
         # Encriptar contraseña
-        contraseña_hash = pwd_context.hash(create_dto.contraseña)
+        contraseña_hash = password_hasher.hash(create_dto.contraseña)
 
         # Crear Value Objects
         nombre_vo = NombreUsuario(valor=create_dto.nombre)
@@ -103,7 +103,7 @@ class UserService:
 
         if update_dto.contraseña is not None:
             # Encriptar nueva contraseña
-            contraseña_hash = pwd_context.hash(update_dto.contraseña)
+            contraseña_hash = password_hasher.hash(update_dto.contraseña)
             existing_user.contraseña = contraseña_hash
 
         if update_dto.id_rol is not None:
@@ -131,7 +131,7 @@ class UserService:
     def authenticate(self, email: str, contraseña: str) -> Optional[User]:
         """Autenticar usuario por email y contraseña"""
         user = self.user_repository.get_by_email(email)
-        if user and pwd_context.verify(contraseña, user.contraseña):
+        if user and password_hasher.verify(contraseña, user.contraseña):
             return user
         return None
     
