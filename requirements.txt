@@ -8,3 +8,4 @@ pwdlib[argon2] == 0.3.0
 PyMySQL==1.1.2
 sqlmodel==0.0.33
 python-jose==3.5.0
+cryptography==46.0.5
