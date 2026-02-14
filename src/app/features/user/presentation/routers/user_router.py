@@ -19,6 +19,16 @@ from src.app.features.user.presentation.schemas.user_schemas import (
     UsersDetailsListResponse
 )
 
+from jose.exceptions import JWTError
+from jose import jwt
+from datetime   import datetime, timedelta,timezone
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("/", response_model=UsersListResponse)
@@ -345,11 +355,19 @@ def login_user(login_request: UserLoginRequest, service: user_service_dep):
                 status=401
             )
         
+        #Crear token de acceso(JWT)
+        access_token_expires = timedelta(minutes=30)
+        access_token = create_access_token(
+            data={"id": user.id_usuario},  # O cualquier dato relevante para la autenticación
+            expires_delta=access_token_expires
+        )
+        
         user_response = UserLoginResponse(
             id_usuario=user.id_usuario,
             nombre=user.nombre.valor,
             email=user.email.valor,
-            id_rol=user.id_rol
+            id_rol=user.id_rol,
+            access_token=access_token
         )
         
         return GenericResponse.create_success(
@@ -397,3 +415,16 @@ def get_user_details_with_details(service: user_service_dep):
             errors=[str(e)],
             status=500
         )
+        
+def create_access_token(data: dict,expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    
+def decode_access_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
