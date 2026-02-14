@@ -50,6 +50,7 @@ class UserLoginResponse(BaseModel):
     nombre: str
     email: str
     id_rol: int
+    access_token: str
     
 class UserDetailResponse(BaseModel):
     id_usuario: Optional[int]
